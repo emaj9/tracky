@@ -1,3 +1,11 @@
+body {
+    min-height: 100%;
+}
+
+#root {
+    min-height: 100%;
+}
+
 * {
   background-color: #fffefe;
   color: #1c1a1a;
