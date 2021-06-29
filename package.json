@@ -13,7 +13,10 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^2.0.3",
     "typescript": "^4.3.4",
+    "underscore": "^1.13.1",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
@@ -39,5 +42,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "@types/underscore": "^1.11.2"
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "src/index.tsx",
+  "author": "",
+  "license": "ISC"
 }

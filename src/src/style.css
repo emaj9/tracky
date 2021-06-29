@@ -1,0 +1,110 @@
+* {
+  background-color: #fffefe;
+  color: #1c1a1a;
+}
+h4 {
+  background-color: transparent;
+}
+#panels-container {
+  max-width: 20in;
+  margin: 1em auto;
+}
+.panel-header {
+  color: black;
+  font-size: large;
+  font-weight: 100;
+  margin-left: 1em;
+}
+#group-radio {
+  background-color: black;
+}
+.card {
+  margin: 0 !important;
+}
+#main {
+  background-color: white;
+}
+#header {
+  text-align: center;
+  padding: 0.5em;
+}
+#add-task-button {
+  padding: 1em;
+}
+#emptytitle {
+  padding: 0em;
+  margin: 0em;
+  font-size: 0em;
+  line-height: 0em;
+  color: white;
+  border-style: none;
+  border-width: 0em;
+  border-color: transparent;
+  width: 0px;
+}
+.task-group {
+  padding: 0.5em;
+}
+
+.task-group-house {
+  background-color: #e0d6fb;
+  border-left: solid 10px #8e6af0;
+}
+.task-group-other {
+  background-color: #cde0fe;
+  border-left: solid 10px #3782fb;
+}
+.task-group-relationship {
+  background-color: #c0eee9;
+  border-left: solid 10px #5ed4cc;
+}
+.task-group-research {
+  background-color: #b9edc4;
+  border-left: solid 10px #6cda84;
+}
+.task-group-self {
+  background-color: #e3fabe;
+  border-left: solid 10px #b6f353;
+}
+.task-group-selfcare {
+  background-color: #e3fabe;
+  border-left: solid 10px #b6f353;
+}
+.task-group-EMPTY {
+  background-color: #faf2b6;
+  border-left: solid 10px #f3e053;
+}
+.group-button {
+  background-color: wheat;
+}
+.task-header {
+  margin-top: 0.3em !important;
+  margin-bottom: 0.8em;
+  margin-left: 1em;
+  font-size: 1.3em !important;
+  font-weight: 300 !important;
+}
+.ui.disabled.checkbox label {
+  color: black !important;
+  opacity: 1 !important;
+}
+
+#todo-panel {
+  border-radius: 0.5em;
+  min-width: 30%;
+  background-color: #f8e8ca;
+  margin: 1em;
+}
+#doing-panel {
+  border-radius: 0.5em;
+  min-width: 30%;
+  background-color: #faf1ce;
+  margin: 1em;
+}
+
+#done-panel {
+  border-radius: 0.5em;
+  min-width: 30%;
+  background-color: #f0e0c0;
+  margin: 1em;
+}
