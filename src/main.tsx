@@ -97,18 +97,17 @@ export default function Main() {
   if ("undefined" === typeof tasks) return null;
 
   const clearToDoing = () => {
-    const inProgs = tasksOfState("in progress");
-    inProgs.map(([, setter]) =>
-      setter((t) =>
-        t.completed_on === null
-          ? { ...t, state: "pending" }
-          : { ...t, state: "complete" }
-      )
-    );
+      setTasks((tasks) => {
+          const newTasks = tasks.slice();
+          for (const task of newTasks) {
+              if (task.state === 'in progress')
+                  task.state = task.completed_on === null ? 'pending' : 'complete';
+
+          }
+          return newTasks;
+      });
   };
-  const tasksOfState = (
-    state
-  ): Array<readonly [Task, Setter<Task>]> =>
+  const tasksOfState = (tasks, state): Array<readonly [Task, Setter<Task>]> =>
     tasks.flatMap((t, index) =>
       t.state === state
         ? ([
@@ -138,7 +137,7 @@ export default function Main() {
               tasks={tasks}
             />
           </div>
-          <TaskRenderer tasks={tasksOfState("pending")} />
+          <TaskRenderer tasks={tasksOfState(tasks, "pending")} />
         </Grid.Column>
         <Grid.Column widths="3" id="doing-panel">
           <h4 className="panel-header">
@@ -149,7 +148,7 @@ export default function Main() {
             </Button>{" "}
           </h4>
           <TaskRenderer
-            tasks={tasksOfState("in progress")}
+            tasks={tasksOfState(tasks, "in progress")}
           />
         </Grid.Column>
         <Grid.Column
@@ -158,7 +157,7 @@ export default function Main() {
           id="done-panel"
         >
           <h4 className="panel-header"> Did </h4>
-          <TaskRenderer tasks={tasksOfState("complete")} />
+          <TaskRenderer tasks={tasksOfState(tasks, "complete")} />
         </Grid.Column>
       </Grid>
     </>
