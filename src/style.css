@@ -1,44 +1,56 @@
 body {
-    min-height: 100%;
+  min-height: 100%;
+  background-color: #fffefe;
+  color: #1c1a1a;
 }
 
 #root {
     min-height: 100%;
+    flex-flow: column nowrap;
+    display: flex;
+}
+
+.task-grid {
+    flex-grow: 1;
 }
 
 * {
-  background-color: #fffefe;
-  color: #1c1a1a;
+  box-sizing: border-box;
 }
+
 h4 {
   background-color: transparent;
 }
+
 #panels-container {
   max-width: 20in;
   margin: 1em auto;
 }
+
 .panel-header {
   color: black;
   font-size: large;
   font-weight: 100;
   margin-left: 1em;
 }
+
 #group-radio {
   background-color: black;
 }
+
 .card {
   margin: 0 !important;
 }
-#main {
-  background-color: white;
-}
+
 #header {
   text-align: center;
   padding: 0.5em;
 }
+
 #add-task-button {
   padding: 1em;
 }
+
 #emptytitle {
   padding: 0em;
   margin: 0em;
@@ -50,6 +62,7 @@ h4 {
   border-color: transparent;
   width: 0px;
 }
+
 .task-group {
   padding: 0.5em;
 }
@@ -100,7 +113,7 @@ h4 {
 #todo-panel {
   border-radius: 0.5em;
   min-width: 30%;
-  background-color: #f8e8ca;
+  background-color: #faf1ce; /* #f8e8ca; */
   margin: 1em;
 }
 #doing-panel {
@@ -113,6 +126,6 @@ h4 {
 #done-panel {
   border-radius: 0.5em;
   min-width: 30%;
-  background-color: #f0e0c0;
+  background-color: #faf1ce; /* #f0e0c0; */
   margin: 1em;
 }

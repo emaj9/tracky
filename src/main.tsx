@@ -121,9 +121,9 @@ export default function Main() {
     );
 
   return (
-    <div id="main">
+      <>
       <h2 id="header">Tasky</h2>
-      <Grid columns={4} centered={true}>
+      <Grid className="task-grid" columns={4} centered={true}>
         <Grid.Column
           widths="3"
           floated="left"
@@ -160,6 +160,6 @@ export default function Main() {
           <TaskRenderer tasks={tasksOfState("complete")} />
         </Grid.Column>
       </Grid>
-    </div>
+    </>
   );
 }
