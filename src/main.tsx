@@ -50,10 +50,11 @@ function TaskRenderer({
   ) as {
     [key: string]: Array<[Task, Setter<Task>]>;
   };
+  const sortedGroupedTasksByTag = Object.entries(groupedTasksByTag).sort(([k1], [k2]) => k1.localeCompare(k2));
 
   return (
     <>
-      {Object.entries(groupedTasksByTag).map(
+      {sortedGroupedTasksByTag.map(
         ([group, vs]) => (
           <div className={"task-group task-group-" + group}>
             <h4 className="task-header">{group}</h4>
