@@ -1,7 +1,10 @@
 /* eslint-disable react/style-prop-object */
 import React, { useEffect, useRef } from "react";
+
 import "./style.css";
 import "semantic-ui-css/semantic.min.css";
+import u from "underscore";
+
 import {
   Card,
   Checkbox,
@@ -14,14 +17,15 @@ import {
   Icon,
   AccordionPanel,
 } from "semantic-ui-react";
+
 import data from "./exampleObj.json";
-import u from "underscore";
-import {
-  isThisTypeNode,
-  setSourceMapRange,
-} from "typescript";
+
 import { Task } from "./types";
 import { DB } from "./db";
+import { getYMD } from './util';
+
+import TaskView from './TaskView';
+import TaskCreator from './components/TaskCreator';
 
 const TASK_GROUPS = [
   "house",
@@ -30,182 +34,6 @@ const TASK_GROUPS = [
   "relationship",
   "other",
 ];
-
-//next: card actions
-function CardMaker({ task, setTask }) {
-  const [completed, setCompleted] = React.useState(
-    task.state === "complete" ? true : false
-  );
-  const handleClick = () => {
-    if (task.state === "pending")
-      setTask((t) => ({ ...t, state: "in progress" }));
-  };
-  const handleCompletionChange = (event) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    completed
-      ? (setCompleted(false),
-        setTask((t: Task) => ({
-          ...t,
-          completed_on: null,
-        })))
-      : (setCompleted(true),
-        setTask((t: Task) => ({
-          ...t,
-          completed_on: getYMD(),
-        })));
-  };
-  return (
-    <Card fluid>
-      <Card.Content className="card">
-        <Checkbox
-          className="checkbox"
-          checked={
-            task.state === "complete" ? true : completed
-          }
-          onChange={handleCompletionChange}
-          name="check"
-          disabled={task.state === "pending"}
-          label={task.task}
-        />
-        {task.group}
-        {task.state === "pending" ? (
-          <Button
-            floated="right"
-            size="mini"
-            onClick={handleClick}
-            compact={true}
-          >
-            +
-          </Button>
-        ) : (
-          ""
-        )}
-      </Card.Content>
-    </Card>
-  );
-}
-
-//ex 2021-12-31
-function getYMD() {
-  const today = new Date();
-  return (
-    today.getFullYear() +
-    "-" +
-    (today.getMonth() + 1) +
-    "-" +
-    today.getDate()
-  );
-}
-
-function FormMaker({ groups, setTasks, tasks }) {
-  const [newTask, setNewTask] = React.useState({
-    task: "",
-    tag: "",
-    assignee: null,
-  });
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      setIsOpen(!isOpen);
-    }
-  };
-
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const handleAssignmentChange = (event) => {
-    setNewTask((prevState) => ({
-      ...prevState,
-      [event.target.name]: event.target.checked,
-    }));
-  };
-  const handleTaskChange = (event) => {
-    setNewTask((prevState) => ({
-      ...prevState,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  const handleSubmit = (event) => {
-    const constructTask = {
-      ...newTask,
-      assignee: null,
-      state: "pending",
-      created_on: getYMD(),
-      assigned_on: null,
-      completed_on: null,
-      deleted: false,
-    };
-    setTasks(tasks.concat([constructTask]));
-    setNewTask({
-      task: "",
-      tag: "",
-      assignee: null,
-    });
-    event.preventDefault();
-  };
-  return (
-    <div>
-      <Button
-        id="add-task-button"
-        fluid
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        New Task
-      </Button>
-      <Accordion styled fluid id="addtask">
-        <Accordion.Title id="emptytitle"></Accordion.Title>
-        <Accordion.Content active={isOpen}>
-          <Form onSubmit={handleSubmit}>
-            <Form.Input
-              value={newTask.task}
-              onChange={handleTaskChange}
-              name="task"
-            />
-            <Form.Group
-              widths="10"
-              grouped={true}
-              inline={true}
-            >
-              {groups.map((group) => (
-                <Form.Radio
-                  checked={newTask.tag === group}
-                  name="tag"
-                  value={group}
-                  label={group}
-                  onChange={(e, { value }) =>
-                    setNewTask((prevState) => ({
-                      ...prevState,
-                      tag: group,
-                    }))
-                  }
-                />
-              ))}
-            </Form.Group>
-            {
-              //<RadioGroup
-              //name="assignee"
-              //onChange={handleTaskChange}
-              //value={newTask.assignee}
-              //>
-              //{["eric", "jake"].map((potentialAssignee) => (
-              //<FormControlLabel
-              //value={potentialAssignee}
-              //name="assignee"
-              //control={<Radio />}
-              //label={
-              //potentialAssignee.charAt(0).toUpperCase() +
-              //potentialAssignee.slice(1)
-              //}
-              ///>
-              //))}
-              //</RadioGroup>
-            }
-            <Form.Button content="Submit" />
-          </Form>
-        </Accordion.Content>
-      </Accordion>
-    </div>
-  );
-}
 
 type Setter<T> = (x: T | ((x: T) => T)) => void;
 
@@ -230,7 +58,7 @@ function TaskRenderer({
           <div className={"task-group task-group-" + group}>
             <h4 className="task-header">{group}</h4>
             {vs.map(([task, setter]) => (
-              <CardMaker
+              <TaskView
                 key={task.task}
                 task={task}
                 setTask={setter}
@@ -303,7 +131,7 @@ export default function Main() {
         >
           <h4 className="panel-header">Tasks</h4>
           <div id="task-adder">
-            <FormMaker
+            <TaskCreator
               groups={TASK_GROUPS}
               setTasks={setTasks}
               tasks={tasks}
