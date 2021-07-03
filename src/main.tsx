@@ -20,57 +20,14 @@ import {
 
 import data from "./exampleObj.json";
 
-import { Task } from "./types";
+import { Task, Setter } from "./types";
 import { DB } from "./db";
 import { getYMD } from './util';
+import { TASK_GROUPS } from './constants';
 
-import TaskView from './TaskView';
 import TaskCreator from './components/TaskCreator';
-
-const TASK_GROUPS = [
-  "house",
-  "research",
-  "selfcare",
-  "relationship",
-  "other",
-];
-
-type Setter<T> = (x: T | ((x: T) => T)) => void;
-
-//give list of tasks,
-//returns the pretty html to display tasks grouped by tag
-function TaskRenderer({
-  tasks,
-}: {
-  tasks: Array<readonly [Task, Setter<Task>]>;
-}) {
-  const groupedTasksByTag = u.groupBy(
-    tasks,
-    ([t]) => t.tag
-  ) as {
-    [key: string]: Array<[Task, Setter<Task>]>;
-  };
-  const sortedGroupedTasksByTag = Object.entries(groupedTasksByTag).sort(([k1], [k2]) => k1.localeCompare(k2));
-
-  return (
-    <>
-      {sortedGroupedTasksByTag.map(
-        ([group, vs]) => (
-          <div className={"task-group task-group-" + group}>
-            <h4 className="task-header">{group}</h4>
-            {vs.map(([task, setter]) => (
-              <TaskView
-                key={task.task}
-                task={task}
-                setTask={setter}
-              />
-            ))}
-          </div>
-        )
-      )}
-    </>
-  );
-}
+import TaskList from './components/TaskList';
+import TaskView from './components/TaskView';
 
 const changing = (array, index, func) => {
   const copy = [...array];
@@ -137,7 +94,7 @@ export default function Main() {
               tasks={tasks}
             />
           </div>
-          <TaskRenderer tasks={tasksOfState(tasks, "pending")} />
+          <TaskList tasks={tasksOfState(tasks, "pending")} />
         </Grid.Column>
         <Grid.Column widths="3" id="doing-panel">
           <h4 className="panel-header">
@@ -147,7 +104,7 @@ export default function Main() {
               CLEAR
             </Button>{" "}
           </h4>
-          <TaskRenderer
+          <TaskList
             tasks={tasksOfState(tasks, "in progress")}
           />
         </Grid.Column>
@@ -157,7 +114,7 @@ export default function Main() {
           id="done-panel"
         >
           <h4 className="panel-header"> Did </h4>
-          <TaskRenderer tasks={tasksOfState(tasks, "complete")} />
+          <TaskList tasks={tasksOfState(tasks, "complete")} />
         </Grid.Column>
       </Grid>
     </>

@@ -10,3 +10,5 @@ export interface Task {
   completed_on: string | null;
   deleted: boolean;
 }
+
+export type Setter<T> = (x: T | ((x: T) => T)) => void;

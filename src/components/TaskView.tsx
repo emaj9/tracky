@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Checkbox, Button } from 'semantic-ui-react';
-import { Task } from './types';
-import { getYMD } from './util';
+import { Task } from '../types';
+import { getYMD } from '../util';
 
 export default function TaskView({ task, setTask }) {
   const [completed, setCompleted] = React.useState(
