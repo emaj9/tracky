@@ -14,24 +14,27 @@ export default function TaskView({ task, setTask }) {
   const handleCompletionChange = (event) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     completed
-      ? (setCompleted(false),
-        setTask((t: Task) => ({
-          ...t,
-          completed_on: null,
-        })))
-      : (setCompleted(true),
-        setTask((t: Task) => ({
-          ...t,
-          completed_on: getYMD(),
-        })));
+    ? (setCompleted(false),
+       setTask((t: Task) => ({
+         ...t,
+         completed_on: null,
+    })))
+    : (setCompleted(true),
+       setTask((t: Task) => ({
+         ...t,
+         completed_on: getYMD(),
+    })));
   };
+  const classes = ['card'];
+  if (task.deleted) classes.push('card-deleted');
+
   return (
     <Card fluid>
-      <Card.Content className="card">
+      <Card.Content className={classes.join(" ")}>
         <Checkbox
           className="checkbox"
           checked={
-            task.state === "complete" ? true : completed
+          task.state === "complete" ? true : completed
           }
           onChange={handleCompletionChange}
           name="check"

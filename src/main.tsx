@@ -22,18 +22,12 @@ import data from "./exampleObj.json";
 
 import { Task, Setter } from "./types";
 import { DB } from "./db";
-import { getYMD } from './util';
+import { getYMD, changing } from './util';
 import { TASK_GROUPS } from './constants';
 
 import TaskCreator from './components/TaskCreator';
 import TaskList from './components/TaskList';
 import TaskView from './components/TaskView';
-
-const changing = (array, index, func) => {
-  const copy = [...array];
-  copy[index] = func(copy[index]);
-  return copy;
-};
 
 export default function Main() {
   const [tasks, setTasksOriginal] =
@@ -53,20 +47,38 @@ export default function Main() {
 
   if ("undefined" === typeof tasks) return null;
 
-  const clearToDoing = () => {
-      setTasks((tasks) => {
-          const newTasks = tasks.slice();
-          for (const task of newTasks) {
-              if (task.state === 'in progress')
-                  task.state = task.completed_on === null ? 'pending' : 'complete';
+  /**
+   * The given function is applied to each task and must construct a
+   * new task from it. A new full task list is built and replaces the
+   * current one.
+   */
+  const mapTasks = (f: (t: Task) => Task) => {
+    setTasks((tasks) => {
+      const newTasks: Task[] = [];
+      for (const t of tasks) {
+        newTasks.push(f(t));
+      }
+      return newTasks;
+    });
+  }
 
-          }
-          return newTasks;
-      });
-  };
-  const tasksOfState = (tasks, state): Array<readonly [Task, Setter<Task>]> =>
+  const clearToDoing = () =>
+    mapTasks((t) =>
+      'in progress' === t.state
+      ? { ...t, state: t.completed_on === null ? 'pending' : 'complete' }
+      : { ...t }
+    );
+
+  const clearDid = () =>
+    mapTasks((t) =>
+      'complete' === t.state && !t.deleted
+      ? { ...t, deleted: true }
+      : { ...t }
+    );
+
+  const tasksWhere = (tasks, predicate): Array<readonly [Task, Setter<Task>]> =>
     tasks.flatMap((t, index) =>
-      t.state === state
+      predicate(t)
         ? ([
             [
               t,
@@ -76,6 +88,9 @@ export default function Main() {
           ] as const)
         : []
     );
+
+  const tasksOfState = (tasks, state) =>
+    tasksWhere(tasks, (t) => t.state === state);
 
   return (
       <>
@@ -98,11 +113,10 @@ export default function Main() {
         </Grid.Column>
         <Grid.Column widths="3" id="doing-panel">
           <h4 className="panel-header">
-            {" "}
             Today's to do
             <Button onClick={clearToDoing} floated="right">
               CLEAR
-            </Button>{" "}
+            </Button>
           </h4>
           <TaskList
             tasks={tasksOfState(tasks, "in progress")}
@@ -113,8 +127,17 @@ export default function Main() {
           floated="right"
           id="done-panel"
         >
-          <h4 className="panel-header"> Did </h4>
-          <TaskList tasks={tasksOfState(tasks, "complete")} />
+          <h4 className="panel-header">
+            Did
+            <Button onClick={clearDid} floated="right">
+              CLEAR
+            </Button>
+          </h4>
+          <TaskList
+            tasks={tasksWhere(
+              tasks,
+              (t) => t.state === 'completed' && !t.deleted)
+            } />
         </Grid.Column>
       </Grid>
     </>

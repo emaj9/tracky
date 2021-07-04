@@ -9,3 +9,9 @@ export function getYMD() {
     today.getDate()
   );
 }
+
+export const changing = (array, index, func) => {
+  const copy = [...array];
+  copy[index] = func(copy[index]);
+  return copy;
+};
