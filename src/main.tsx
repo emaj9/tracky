@@ -136,7 +136,7 @@ export default function Main() {
           <TaskList
             tasks={tasksWhere(
               tasks,
-              (t) => t.state === 'completed' && !t.deleted)
+              (t) => t.state === 'complete' && !t.deleted)
             } />
         </Grid.Column>
       </Grid>
