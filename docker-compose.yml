@@ -1,0 +1,15 @@
+---
+version: "3.x"
+services:
+  couchdb:
+    image: couchdb
+    environment:
+      - "COUCHDB_USER=admin"
+      - "COUCHDB_PASSWORD=fatlilbimbo"
+    ports:
+      - "5984:5984"
+    volumes:
+      - data:/home/couchdb/data
+
+volumes:
+  data:

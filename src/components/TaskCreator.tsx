@@ -1,8 +1,12 @@
-import React from 'react';
-import { Button, Accordion, Form } from 'semantic-ui-react';
-import { getYMD } from '../util';
+import React from "react";
+import { Button, Accordion, Form } from "semantic-ui-react";
+import { getYMD } from "../util";
 
-export default function TaskCreator({ groups, setTasks, tasks }) {
+export default function TaskCreator({
+  groups,
+  updateTask,
+  tasks,
+}) {
   const [newTask, setNewTask] = React.useState({
     task: "",
     tag: "",
@@ -29,7 +33,7 @@ export default function TaskCreator({ groups, setTasks, tasks }) {
       [event.target.name]: event.target.value,
     }));
   };
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     const constructTask = {
       ...newTask,
       assignee: null,
@@ -39,7 +43,7 @@ export default function TaskCreator({ groups, setTasks, tasks }) {
       completed_on: null,
       deleted: false,
     };
-    setTasks(tasks.concat([constructTask]));
+    await updateTask(constructTask);
     setNewTask({
       task: "",
       tag: "",
@@ -65,15 +69,12 @@ export default function TaskCreator({ groups, setTasks, tasks }) {
               onChange={handleTaskChange}
               name="task"
             />
-            <Form.Group
-              widths="10"
-              grouped={true}
-              inline={true}
-            >
+            <Form.Group widths="10" grouped={true}>
               {groups.map((group) => (
                 <Form.Radio
                   checked={newTask.tag === group}
                   name="tag"
+                  key={group}
                   value={group}
                   label={group}
                   onChange={(e, { value }) =>

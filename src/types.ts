@@ -9,6 +9,8 @@ export interface Task {
   assigned_on: string | null;
   completed_on: string | null;
   deleted: boolean;
+  _id?: string;
+  _rev?: string;
 }
 
 export type Setter<T> = (x: T | ((x: T) => T)) => void;

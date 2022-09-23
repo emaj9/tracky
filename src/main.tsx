@@ -1,5 +1,5 @@
 /* eslint-disable react/style-prop-object */
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
 import "./style.css";
 import "semantic-ui-css/semantic.min.css";
@@ -22,28 +22,48 @@ import data from "./exampleObj.json";
 
 import { Task, Setter } from "./types";
 import { DB } from "./db";
-import { getYMD, changing } from './util';
-import { TASK_GROUPS } from './constants';
+import { getYMD, changing } from "./util";
+import { TASK_GROUPS } from "./constants";
 
-import TaskCreator from './components/TaskCreator';
-import TaskList from './components/TaskList';
-import TaskView from './components/TaskView';
+import TaskCreator from "./components/TaskCreator";
+import TaskList from "./components/TaskList";
+import TaskView from "./components/TaskView";
+
+const DbContext = React.createContext<DB>(undefined);
 
 export default function Main() {
-  const [tasks, setTasksOriginal] =
+  const [tasks, setTasks] =
     React.useState<Task[] | undefined>(undefined);
-
-  const setTasks = (f) => {
-    const db = new DB();
-    const newTasks = "function" === typeof f ? f(tasks) : f;
-    db.setTasks(newTasks);
-    setTasksOriginal(newTasks);
-  };
+  const [db] = useState<DB>(new DB());
 
   useEffect(() => {
-    const db = new DB();
-    setTasksOriginal(() => db.getTasks());
-  }, [setTasksOriginal]);
+    (async () => {
+      setTasks(await db.getTasks());
+    })();
+  }, [setTasks, db]);
+
+  const smartUpdateTask = async (
+    t: Task
+  ): Promise<Task> => {
+    const newTask = await db.updateTask(t);
+    if (newTask._id !== t._id)
+      setTasks((ts) => ts.concat([newTask]));
+    else
+      setTasks((ts) =>
+        ts.map((t) => (t._id === newTask._id ? newTask : t))
+      );
+    return newTask;
+  };
+
+  const transformTask = async (
+    task: Task,
+    f: (x: Task) => Task
+  ): Promise<Task> => {
+    const newTask = f(task);
+    return JSON.stringify(task) === JSON.stringify(newTask)
+      ? newTask
+      : await smartUpdateTask(newTask);
+  };
 
   if ("undefined" === typeof tasks) return null;
 
@@ -52,39 +72,41 @@ export default function Main() {
    * new task from it. A new full task list is built and replaces the
    * current one.
    */
-  const mapTasks = (f: (t: Task) => Task) => {
-    setTasks((tasks) => {
-      const newTasks: Task[] = [];
-      for (const t of tasks) {
-        newTasks.push(f(t));
-      }
-      return newTasks;
-    });
-  }
+  const mapTasks = async (f: (t: Task) => Task) => {
+    const newTasks = [];
+    for (const task of tasks)
+      newTasks.push(await transformTask(task, f));
+    return newTasks;
+  };
 
   const clearToDoing = () =>
     mapTasks((t) =>
-      'in progress' === t.state
-      ? { ...t, state: t.completed_on === null ? 'pending' : 'complete' }
-      : { ...t }
+      "in progress" === t.state
+        ? {
+            ...t,
+            state:
+              t.completed_on === null
+                ? "pending"
+                : "complete",
+          }
+        : { ...t }
     );
 
   const clearDid = () =>
     mapTasks((t) =>
-      'complete' === t.state && !t.deleted
-      ? { ...t, deleted: true }
-      : { ...t }
+      "complete" === t.state && !t.deleted
+        ? { ...t, deleted: true }
+        : { ...t }
     );
 
-  const tasksWhere = (tasks, predicate): Array<readonly [Task, Setter<Task>]> =>
+  const tasksWhere = (
+    tasks,
+    predicate
+  ): Array<readonly [Task, Setter<Task>]> =>
     tasks.flatMap((t, index) =>
       predicate(t)
         ? ([
-            [
-              t,
-              (f) =>
-                setTasks((ts) => changing(ts, index, f)),
-            ] as const,
+            [t, (f) => transformTask(t, f)] as const,
           ] as const)
         : []
     );
@@ -93,9 +115,13 @@ export default function Main() {
     tasksWhere(tasks, (t) => t.state === state);
 
   return (
-      <>
+    <>
       <h2 id="header">Tasky</h2>
-      <Grid className="task-grid" columns={4} centered={true}>
+      <Grid
+        className="task-grid"
+        columns={4}
+        centered={true}
+      >
         <Grid.Column
           widths="3"
           floated="left"
@@ -105,11 +131,13 @@ export default function Main() {
           <div id="task-adder">
             <TaskCreator
               groups={TASK_GROUPS}
-              setTasks={setTasks}
+              updateTask={smartUpdateTask}
               tasks={tasks}
             />
           </div>
-          <TaskList tasks={tasksOfState(tasks, "pending")} />
+          <TaskList
+            tasks={tasksOfState(tasks, "pending")}
+          />
         </Grid.Column>
         <Grid.Column widths="3" id="doing-panel">
           <h4 className="panel-header">
@@ -136,8 +164,9 @@ export default function Main() {
           <TaskList
             tasks={tasksWhere(
               tasks,
-              (t) => t.state === 'complete' && !t.deleted)
-            } />
+              (t) => t.state === "complete" && !t.deleted
+            )}
+          />
         </Grid.Column>
       </Grid>
     </>
